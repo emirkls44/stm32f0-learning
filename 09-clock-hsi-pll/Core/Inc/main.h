@@ -2,7 +2,7 @@
  * main.h
  *
  *  Created on: 18 Tem 2026
- *      Author: Ebrar
+ *      Author: Emir Ebubekir Keleş
  */
 
 #ifndef INC_MAIN_H_
