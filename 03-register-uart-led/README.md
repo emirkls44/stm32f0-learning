@@ -1,23 +1,14 @@
-# STM32F0 Bare-Metal UART & LED
+# 03 – Register-level GPIO and UART
 
-Bu proje, STM32F0 Discovery kiti üzerinde kütüphane soyutlamalarını minimize ederek, doğrudan **Register Level (Bare-Metal)** programlama teknikleriyle geliştirilmiştir. 
+LED and UART output written directly against the RCC, GPIO and USART1 registers (HAL is only used
+for `HAL_Init()` and `HAL_GetTick()`).
 
-## 🎯 Projenin Amacı
-İşlemciyi `HAL_Delay` gibi fonksiyonlarla bloklamadan, arka planda zamanı takip ederek aynı anda hem LED yakıp söndürmek hem de UART üzerinden terminale (Hercules vb.) veri göndermektir.
+Every 500 ms the green LED (LD3, PC9) toggles and `LED ACIK` / `LED KAPALI` is sent over UART.
 
-## 🛠 Teknik Özellikler
-* **Donanım:** STM32F051R8 (ARM Cortex-M0).
-* **Zaman Yönetimi:** `HAL_GetTick()` tabanlı non-blocking (bloklamayan) yapı.
-* **UART Yapılandırması:** * **Hız:** 9600 Baud
-  * **Pin:** PA9 (TX)
-* **GPIO Yapılandırması:** * **LED:** PC9 (Mavi LED)
-* 
-## 💻 Çalışma Mantığı
-Kod, UART haberleşmesi sırasında her bir karakterin gönderilip gönderilmediğini **TXE (Transmit Data Register Empty)** bayrağını maskeleyerek kontrol eder. Cümleler, Null Terminator (`\0`) gözetilerek karakter karakter donanıma aktarılır.
+| Item | Setting |
+|---|---|
+| UART | USART1 TX on PA9 (AF1), 9600 8N1 |
+| Baud rate | `BRR = 8 MHz / 9600 = 833` (HSI, no PLL) |
+| Transmit | polling: wait for `TXE` (ISR bit 7), then write `TDR` |
 
-## 🔌 Bağlantı Şeması
-* STM32 **PA9** -> USB-TTL **RX**
-* STM32 **GND** -> USB-TTL **GND**
-
-## 📜 Lisans
-Bu proje eğitim amaçlı geliştirilmiştir, özgürce kullanılabilir.
+Wiring: PA9 → RX of a USB-UART adapter, GND → GND.

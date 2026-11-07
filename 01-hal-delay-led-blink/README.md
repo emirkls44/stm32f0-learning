@@ -1,36 +1,8 @@
-# STM32 HAL Delay LED Blink
+# 01 – LED blink with `HAL_Delay()`
 
-STM32F0 serisi mikrodenetleyici kullanılarak **HAL kütüphanesi** ile
-`HAL_Delay()` fonksiyonu üzerinden yapılan temel LED blink uygulaması.
+First STM32CubeMX/HAL project: toggles the green LED (LD3, PC9) every second with a blocking
+`HAL_Delay(1000)`.
 
-> 🎯 Amaç: STM32 HAL yapısını öğrenmek ve minimum seviyede çalışan,
-temiz bir örnek oluşturmak.
-
----
-
-## 🧩 Donanım
-
-- Mikrodenetleyici: **STM32F051R8**
-- Geliştirme Kartı: NUCLEO / Custom board
-- IDE: **STM32CubeIDE**
-- Programlayıcı: **ST-LINK**
-
----
-
-## ⚙️ Proje İçeriği
-
-- HAL tabanlı LED kontrolü
-- `HAL_Delay()` ile zamanlama
-- CubeMX ile oluşturulmuş proje yapısı
-- Minimal ve anlaşılır kod
-
----
-
-## 📁 Proje Yapısı
-
-```text
-Core/
- ├── Inc/
- └── Src/
-Drivers/
-STM32F051R8TX_FLASH.ld
+- Board: STM32F0DISCOVERY (STM32F051R8), 8 MHz HSI
+- Shows the CubeMX project layout (`USER CODE` sections, `MX_GPIO_Init()`)
+- Limitation: `HAL_Delay()` blocks the CPU; example 02 removes that.
