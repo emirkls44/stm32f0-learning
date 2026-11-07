@@ -8,6 +8,7 @@ uint8_t kayit_basladi = 0;
 char tx_buffer_main[150];
 char *tx_ptr;
 volatile uint8_t tx_busy = 0;
+volatile uint8_t mesaj_hazir = 0; /* a complete @...* message is waiting */
 
 
 void USART1_Send_Message_IT(char* str);
@@ -30,6 +31,15 @@ int main(void)
 
   while (1)
   {
+	  /* Formatting (sprintf) is done here instead of in the interrupt, and only
+	   * when the previous reply has been sent: writing tx_buffer_main while it
+	   * is being transmitted would corrupt the output. */
+	  if (mesaj_hazir && !tx_busy)
+	  {
+		  sprintf(tx_buffer_main, "\r\n>> GELEN: %s\r\n", rx_buffer);
+		  mesaj_hazir = 0;
+		  USART1_Send_Message_IT(tx_buffer_main);
+	  }
 
   }
 }
@@ -51,7 +61,7 @@ void USART1_IRQHandler(void) {
 
         char c = USART1->RDR;
 
-        if (c == '@') {
+        if ((c == '@') && !mesaj_hazir) {
             rx_index = 0;
             kayit_basladi = 1;
 
@@ -62,8 +72,7 @@ void USART1_IRQHandler(void) {
                 rx_buffer[rx_index] = '\0';
                 kayit_basladi = 0;
 
-                sprintf(tx_buffer_main, "\r\n>> GELEN: %s\r\n", rx_buffer);
-                USART1_Send_Message_IT(tx_buffer_main);
+                mesaj_hazir = 1; /* the main loop sends the reply */
             }
             else if (rx_index < 99) {
                 rx_buffer[rx_index++] = c;
@@ -83,6 +92,7 @@ void USART1_IRQHandler(void) {
         }
     }
     if (USART1->ISR & (USART_ISR_ORE | USART_ISR_FE)) {
-        USART1->ICR |=(USART_ICR_ORECF | USART_ICR_FECF);
+        /* ICR is write-1-to-clear: a plain write, not read-modify-write */
+        USART1->ICR = USART_ICR_ORECF | USART_ICR_FECF;
     }
 }

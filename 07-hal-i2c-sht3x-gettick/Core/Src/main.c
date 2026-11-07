@@ -3,7 +3,8 @@
 
 I2C_HandleTypeDef hi2c1;
 #define SHT3X_ADDR (0x44 << 1)
-#define GetTick(a)	(HAL_GetTick() - lastTick >= a)
+/* True when `ms` milliseconds have passed since `since` (wrap-around safe) */
+#define ELAPSED_MS(since, ms) ((HAL_GetTick() - (since)) >= (ms))
 volatile HAL_StatusTypeDef ret;
 
 float temperature = 0.0f;
@@ -27,14 +28,14 @@ int main(void) {
     while (1) {
 
 
-        if ((readPending == 0) && GetTick(100)) {
+        if ((readPending == 0) && ELAPSED_MS(lastTick, 100)) {
         	ret=HAL_I2C_Master_Transmit(&hi2c1, SHT3X_ADDR, cmd, 2, 50);
             	if ( ret== HAL_OK) {
             		lastTick = HAL_GetTick();
             		readPending = 1;
             	}
         }
-        if ((readPending == 1) && GetTick(100)) {
+        if ((readPending == 1) && ELAPSED_MS(lastTick, 100)) {
         	ret=HAL_I2C_Master_Receive(&hi2c1, SHT3X_ADDR, data, 6, 100);
             	if (ret== HAL_OK) {
 

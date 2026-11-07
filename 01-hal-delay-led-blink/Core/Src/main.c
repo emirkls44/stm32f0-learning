@@ -103,8 +103,6 @@ int main(void)
 	  HAL_Delay(1000);
 
 
-	 // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);  // test kodum11
-	 //HAL_Delay(1000);
 
 
   }

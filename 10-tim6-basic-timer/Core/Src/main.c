@@ -30,7 +30,7 @@ void GPIO_Init(void)
 {
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 
-	GPIO_InitTypeDef ledgpio;
+	GPIO_InitTypeDef ledgpio = {0};
 	ledgpio.Pin=GPIO_PIN_8;
 	ledgpio.Mode=GPIO_MODE_OUTPUT_PP;
 	ledgpio.Pull=GPIO_NOPULL;
@@ -42,6 +42,7 @@ void TIM6_Init(void)
 	__HAL_RCC_TIM6_CLK_ENABLE();
 
 	htimer6.Instance=TIM6;
+	/* 8 MHz HSI / 8000 = 1 kHz timer clock; 1000 counts = 1 s period */
 	htimer6.Init.Prescaler=8000-1;
 	htimer6.Init.Period=999;
 

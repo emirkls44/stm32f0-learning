@@ -18,13 +18,11 @@ int  main(void){
 
 
 	HAL_Init();
-	UART2_Init();
 
 	SystemClockConfig(SYS_CLOCK_FREQ_48_MHZ);
-	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-
+	/* Initialised after the clock change so the baud rate is computed
+	 * from the new PCLK. */
 	UART2_Init();
 
 		memset(msg, 0, sizeof(msg));
@@ -51,8 +49,9 @@ int  main(void){
 
 void SystemClockConfig(uint8_t clock_freq)
 {
-	RCC_OscInitTypeDef osc_init;
-	RCC_ClkInitTypeDef clk_init;
+	/* Zero-initialise: HAL reads fields that are not set below (e.g. PLL.PREDIV) */
+	RCC_OscInitTypeDef osc_init = {0};
+	RCC_ClkInitTypeDef clk_init = {0};
 
 	uint32_t FLatency =0;
 
@@ -72,7 +71,7 @@ void SystemClockConfig(uint8_t clock_freq)
 				RCC_CLOCKTYPE_PCLK1;
 		clk_init.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;
 		clk_init.AHBCLKDivider=RCC_SYSCLK_DIV1;
-		clk_init.APB1CLKDivider=RCC_SYSCLK_DIV2;
+		clk_init.APB1CLKDivider=RCC_HCLK_DIV2;
 
 		FLatency= FLASH_LATENCY_1;
 
@@ -86,7 +85,7 @@ void SystemClockConfig(uint8_t clock_freq)
 					RCC_CLOCKTYPE_PCLK1;
 			clk_init.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;
 			clk_init.AHBCLKDivider=RCC_SYSCLK_DIV1;
-			clk_init.APB1CLKDivider=RCC_SYSCLK_DIV4;
+			clk_init.APB1CLKDivider=RCC_HCLK_DIV4;
 
 			FLatency= FLASH_LATENCY_1;
 
@@ -100,7 +99,7 @@ void SystemClockConfig(uint8_t clock_freq)
 						RCC_CLOCKTYPE_PCLK1;
 				clk_init.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;
 				clk_init.AHBCLKDivider=RCC_SYSCLK_DIV1;
-				clk_init.APB1CLKDivider=RCC_SYSCLK_DIV8;
+				clk_init.APB1CLKDivider=RCC_HCLK_DIV8;
 
 				FLatency= FLASH_LATENCY_1;
 
@@ -140,12 +139,6 @@ void UART2_Init(void){
 	}
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-
-
-
-}
 
 void Error_handler(void)
 {
